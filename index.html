@@ -19,20 +19,27 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            /* COULEUR DE FOND INITIALE */
             background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
             font-family: 'Poppins', sans-serif;
             overflow: hidden; /* Empêche de scroller sur les côtés */
-            -webkit-tap-highlight-color: transparent; /* Enlève le flash gris au clic sur iPhone */
+            -webkit-tap-highlight-color: transparent;
+            transition: background 1s ease; /* Transition pour le changement de couleur du fond */
+        }
+        
+        /* Classe pour le fond spécial */
+        .special-background {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         }
 
         .card {
             background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(5px); /* Effet verre dépoli très "Apple" */
+            backdrop-filter: blur(5px);
             padding: 30px 20px;
             border-radius: 25px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.15);
             text-align: center;
-            width: 85%; /* Largeur parfaite pour l'écran de l'iPhone 11 */
+            width: 85%;
             max-width: 400px;
             position: relative;
             z-index: 10;
@@ -42,7 +49,7 @@
         h1 {
             font-family: 'Dancing Script', cursive;
             color: #d63384;
-            font-size: 2.8em; /* Ajusté pour ne pas casser sur mobile */
+            font-size: 2.8em;
             margin: 0 0 15px 0;
             line-height: 1.2;
         }
@@ -59,19 +66,25 @@
             background: linear-gradient(45deg, #d63384, #ff6b6b);
             color: white;
             border: none;
-            padding: 15px 35px; /* Zone de touche plus grande pour le pouce */
+            padding: 15px 35px;
             font-size: 1.1em;
             border-radius: 50px;
             cursor: pointer;
             font-weight: 600;
             box-shadow: 0 5px 15px rgba(214, 51, 132, 0.3);
-            transition: transform 0.2s;
+            transition: transform 0.2s, background 0.5s ease;
             outline: none;
             user-select: none;
         }
 
         .btn:active {
-            transform: scale(0.95); /* Petit effet de pression agréable */
+            transform: scale(0.95);
+        }
+        
+        /* Style spécial pour le bouton de l'easter egg */
+        .btn-special {
+            background: linear-gradient(45deg, #ffd700, #ff69b4); /* Or et Rose Vif */
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
         }
 
         .hidden-message {
@@ -85,15 +98,25 @@
             animation: slideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* Animation des cœurs */
-        .heart {
+        /* Animation des cœurs (et des étoiles) */
+        .particle { /* Renommé pour accueillir les coeurs et étoiles */
             position: absolute;
-            color: #d63384;
             top: -50px;
             animation: fall linear forwards;
-            pointer-events: none; /* TRÈS IMPORTANT: permet de cliquer à travers les cœurs */
+            pointer-events: none;
             z-index: 5;
         }
+        
+        .heart {
+             color: #d63384;
+        }
+        
+        .star {
+            color: #ffd700; /* Jaune or pour les étoiles */
+            font-size: 40px !important; /* Pour qu'elles soient bien visibles */
+            animation-duration: 4s !important;
+        }
+
 
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.9); }
@@ -118,7 +141,7 @@
         
         <p>
             Je voulais t'envoyer un petit message pour cette
-            journée spéciale!! 
+            journée spéciale!!
         </p>
 
         <button class="btn" onclick="revealSurprise()">Appuie ici 👇</button>
@@ -126,46 +149,82 @@
         <div class="hidden-message" id="secret">
             Bonne fête mon amour ! Je t'aime fort, bisous 😘
         </div>
+        
+        <div class="hidden-message" id="special-secret" style="display:none; color: #4facfe;">
+            WAOUH ! Tu as trouvé la surprise secrète ! 🎉 C'est comme toi : unique et incroyable.
+        </div>
     </div>
 
     <script>
+        // VARIABLE POUR COMPTER LES CLICS
+        let clickCount = 0;
+        const SPECIAL_COUNT = 5;
+
         function revealSurprise() {
             const secret = document.getElementById('secret');
+            const specialSecret = document.getElementById('special-secret');
             const btn = document.querySelector('.btn');
-            
+            const body = document.body;
+
+            // 1. Gère l'affichage initial du message secret
             if (secret.style.display !== 'block') {
                 secret.style.display = 'block';
-                btn.textContent = "Recommencer la pluie 💕"; // Change le texte du bouton
-                createHeartRain();
+                btn.textContent = "Recommencer la pluie 💕";
+                createHeartRain('heart');
             } else {
-                createHeartRain(); // Si on reclique, ça relance juste les cœurs
+                // 2. Incrémente le compteur seulement si le message est déjà affiché
+                clickCount++;
+                
+                // 3. VÉRIFICATION DE L'EASTER EGG
+                if (clickCount >= SPECIAL_COUNT) {
+                    // EASTER EGG DÉCLENCHÉ
+                    specialSecret.style.display = 'block';
+                    secret.style.display = 'none'; // Cache le message normal
+                    btn.textContent = "Trop d'amour ! 🌟";
+                    btn.classList.add('btn-special'); // Nouveau style pour le bouton
+                    body.classList.add('special-background'); // Change le fond
+                    createHeartRain('star'); // Lancement des étoiles
+                    // Remet le compteur à zéro après le déclenchement si vous voulez le revoir
+                    // clickCount = 0; 
+                } else {
+                    // AFFICHAGE NORMAL (pluie de cœurs)
+                    createHeartRain('heart');
+                }
             }
         }
 
-        function createHeartRain() {
+        function createHeartRain(type) {
             const container = document.body;
-            // On envoie 40 cœurs (pas trop pour ne pas faire laguer le téléphone)
-            for (let i = 0; i < 40; i++) {
-                const heart = document.createElement('div');
-                heart.classList.add('heart');
-                heart.innerHTML = ['❤️', '💖', '💕', '🥰'][Math.floor(Math.random() * 4)]; // Mélange d'emojis
-                heart.style.left = Math.random() * 100 + 'vw';
-                heart.style.animationDuration = Math.random() * 2 + 2 + 's'; // Vitesse variée
-                heart.style.fontSize = Math.random() * 20 + 20 + 'px';
-                heart.style.opacity = Math.random() * 0.7 + 0.3;
+            const count = (type === 'star') ? 60 : 40; // Plus de particules pour la surprise
+            
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle', type); // Ajoute la classe 'heart' ou 'star'
                 
-                container.appendChild(heart);
+                if (type === 'heart') {
+                    particle.innerHTML = ['❤️', '💖', '💕', '🥰'][Math.floor(Math.random() * 4)];
+                    particle.style.fontSize = Math.random() * 20 + 20 + 'px';
+                } else { // type === 'star'
+                    particle.innerHTML = ['✨', '🌟', '💫'][Math.floor(Math.random() * 3)];
+                    particle.style.fontSize = Math.random() * 30 + 30 + 'px'; // Étoiles plus grandes
+                }
+                
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.animationDuration = Math.random() * 2 + 2 + 's';
+                particle.style.opacity = Math.random() * 0.7 + 0.3;
+                
+                container.appendChild(particle);
 
                 setTimeout(() => {
-                    heart.remove();
+                    particle.remove();
                 }, 5000);
             }
         }
 
-        // Ambiance de fond légère
+        // Ambiance de fond légère (laisse les petits coeurs)
         setInterval(() => {
             const heart = document.createElement('div');
-            heart.classList.add('heart');
+            heart.classList.add('particle', 'heart');
             heart.innerHTML = '❤️';
             heart.style.left = Math.random() * 100 + 'vw';
             heart.style.animationDuration = Math.random() * 5 + 5 + 's';
