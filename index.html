@@ -14,20 +14,17 @@
         body {
             margin: 0;
             padding: 0;
-            /* 100dvh est crucial pour Safari sur iPhone (gère la barre d'adresse) */
             height: 100dvh;
             display: flex;
             justify-content: center;
             align-items: center;
-            /* COULEUR DE FOND INITIALE */
             background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
             font-family: 'Poppins', sans-serif;
-            overflow: hidden; /* Empêche de scroller sur les côtés */
+            overflow: hidden;
             -webkit-tap-highlight-color: transparent;
-            transition: background 1s ease; /* Transition pour le changement de couleur du fond */
+            transition: background 1s ease;
         }
         
-        /* Classe pour le fond spécial */
         .special-background {
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         }
@@ -75,20 +72,27 @@
             transition: transform 0.2s, background 0.5s ease;
             outline: none;
             user-select: none;
+            display: block; /* Important pour que le bouton soit sur une ligne */
+            margin: 10px auto;
+        }
+        
+        /* Style du nouveau bouton pour le cadeau */
+        #gift-btn {
+            background: linear-gradient(45deg, #28a745, #20c997); /* Vert pour le contraste */
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+            display: none; /* Cache par défaut */
         }
 
         .btn:active {
             transform: scale(0.95);
         }
         
-        /* Style spécial pour le bouton de l'easter egg */
         .btn-special {
-            background: linear-gradient(45deg, #ffd700, #ff69b4); /* Or et Rose Vif */
+            background: linear-gradient(45deg, #ffd700, #ff69b4);
             box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
         }
 
-        .hidden-message {
-            display: none;
+        .message-box { /* Classe générique pour tous les messages */
             margin-top: 25px;
             padding-top: 20px;
             border-top: 1px solid rgba(0,0,0,0.05);
@@ -97,9 +101,22 @@
             font-size: 1.2em;
             animation: slideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        
+        #gift-container {
+            display: none; /* Cache le cadeau par défaut */
+            color: #28a745; /* Texte cadeau en vert */
+        }
+        
+        #gift-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
 
-        /* Animation des cœurs (et des étoiles) */
-        .particle { /* Renommé pour accueillir les coeurs et étoiles */
+        /* Animation des cœurs et étoiles */
+        .particle {
             position: absolute;
             top: -50px;
             animation: fall linear forwards;
@@ -107,13 +124,14 @@
             z-index: 5;
         }
         
+        /* ... (autres styles .heart, .star, @keyframes inchangés) ... */
         .heart {
              color: #d63384;
         }
         
         .star {
-            color: #ffd700; /* Jaune or pour les étoiles */
-            font-size: 40px !important; /* Pour qu'elles soient bien visibles */
+            color: #ffd700;
+            font-size: 40px !important;
             animation-duration: 4s !important;
         }
 
@@ -141,72 +159,92 @@
         
         <p>
             Je voulais t'envoyer un petit message pour cette
-            journée spéciale, donc j'ai codé un site pour te le souhaitez tôt!!
+            journée spéciale!!
         </p>
 
         <button class="btn" onclick="revealSurprise()">Appuie ici 👇</button>
+        
+        <button id="gift-btn" class="btn" onclick="revealGift()">Révéler le cadeau 🎁</button>
 
-        <div class="hidden-message" id="secret">
+        <div class="message-box" id="secret" style="display:none;">
             Bonne fête mon amour ! Je t'aime fort, bisous 😘
         </div>
         
-        <div class="hidden-message" id="special-secret" style="display:none; color: #4facfe;">
+        <div class="message-box" id="gift-container">
+            Mon plus beau cadeau, c'est toi. Mais voici une petite preuve de mon amour !
+            
+            <img src="https://via.placeholder.com/350x200?text=Ton+Cadeau+Secret" alt="Cadeau spécial">
+            
+            <p style="font-size: 0.9em; font-weight: normal; margin-top: 10px; color: #555;">
+                Un petit voyage surprise nous attend... 😉
+            </p>
+        </div>
+
+        <div class="message-box" id="special-secret" style="display:none; color: #4facfe;">
             WAOUH ! Tu as trouvé la surprise secrète ! 🎉 C'est comme toi : unique et incroyable.
         </div>
     </div>
 
     <script>
-        // VARIABLE POUR COMPTER LES CLICS
         let clickCount = 0;
         const SPECIAL_COUNT = 5;
 
         function revealSurprise() {
             const secret = document.getElementById('secret');
+            const giftBtn = document.getElementById('gift-btn'); // Référence au nouveau bouton
             const specialSecret = document.getElementById('special-secret');
             const btn = document.querySelector('.btn');
-            const body = document.body;
 
             // 1. Gère l'affichage initial du message secret
             if (secret.style.display !== 'block') {
                 secret.style.display = 'block';
                 btn.textContent = "Recommencer la pluie 💕";
+                giftBtn.style.display = 'block'; // AFFICHE LE NOUVEAU BOUTON CADEAU
                 createHeartRain('heart');
             } else {
-                // 2. Incrémente le compteur seulement si le message est déjà affiché
+                // 2. Clics suivants (pour l'easter egg)
                 clickCount++;
                 
-                // 3. VÉRIFICATION DE L'EASTER EGG
                 if (clickCount >= SPECIAL_COUNT) {
                     // EASTER EGG DÉCLENCHÉ
                     specialSecret.style.display = 'block';
-                    secret.style.display = 'none'; // Cache le message normal
+                    secret.style.display = 'none'; 
+                    giftBtn.style.display = 'none'; // Cache le bouton cadeau (s'il était là)
                     btn.textContent = "Trop d'amour ! 🌟";
-                    btn.classList.add('btn-special'); // Nouveau style pour le bouton
-                    body.classList.add('special-background'); // Change le fond
-                    createHeartRain('star'); // Lancement des étoiles
-                    // Remet le compteur à zéro après le déclenchement si vous voulez le revoir
-                    // clickCount = 0; 
+                    btn.classList.add('btn-special');
+                    document.body.classList.add('special-background');
+                    createHeartRain('star');
                 } else {
                     // AFFICHAGE NORMAL (pluie de cœurs)
                     createHeartRain('heart');
                 }
             }
         }
+        
+        // NOUVELLE FONCTION POUR RÉVÉLER LE CADEAU
+        function revealGift() {
+            const giftContainer = document.getElementById('gift-container');
+            const giftBtn = document.getElementById('gift-btn');
+            
+            giftContainer.style.display = 'block';
+            giftBtn.style.display = 'none'; // Cache le bouton une fois le cadeau révélé
+        }
+
 
         function createHeartRain(type) {
             const container = document.body;
-            const count = (type === 'star') ? 60 : 40; // Plus de particules pour la surprise
+            const count = (type === 'star') ? 60 : 40;
             
             for (let i = 0; i < count; i++) {
                 const particle = document.createElement('div');
-                particle.classList.add('particle', type); // Ajoute la classe 'heart' ou 'star'
+                particle.classList.add('particle', type);
                 
                 if (type === 'heart') {
                     particle.innerHTML = ['❤️', '💖', '💕', '🥰'][Math.floor(Math.random() * 4)];
                     particle.style.fontSize = Math.random() * 20 + 20 + 'px';
-                } else { // type === 'star'
+                } else {
                     particle.innerHTML = ['✨', '🌟', '💫'][Math.floor(Math.random() * 3)];
-                    particle.style.fontSize = Math.random() * 30 + 30 + 'px'; // Étoiles plus grandes
+                    particle.style.fontSize = Math.random() * 30 + 30 + 'px';
                 }
                 
                 particle.style.left = Math.random() * 100 + 'vw';
@@ -221,7 +259,7 @@
             }
         }
 
-        // Ambiance de fond légère (laisse les petits coeurs)
+        // Ambiance de fond légère
         setInterval(() => {
             const heart = document.createElement('div');
             heart.classList.add('particle', 'heart');
